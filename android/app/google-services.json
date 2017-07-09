@@ -1,0 +1,63 @@
+{
+  "project_info": {
+    "project_number": "80109146984",
+    "firebase_url": "https://arabic-church-d09bc.firebaseio.com",
+    "project_id": "arabic-church-d09bc",
+    "storage_bucket": "arabic-church-d09bc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:80109146984:android:3a5f0d3d25d41390",
+        "android_client_info": {
+          "package_name": "com.arabicchurch.arabicchurch"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "80109146984-5kgivsfi2rsa4tnjp5ajcmjr8gapc27s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.arabicchurch.arabicchurch",
+            "certificate_hash": "d26fabbcd28282fbfb1f3b00d3232d20fc731770"
+          }
+        },
+        {
+          "client_id": "80109146984-h3ul9dif7d97a693dj25draoga6patls.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.arabicchurch.arabicchurch",
+            "certificate_hash": "b9c325f6f39aad99229abd76f21f214c5fe308b1"
+          }
+        },
+        {
+          "client_id": "80109146984-rjebrtjhsvt49921nf46m8nnp69dou4l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDpGmD3iWJxuV_SpGOzZEdR53ELI0V8pa8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "80109146984-rjebrtjhsvt49921nf46m8nnp69dou4l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
