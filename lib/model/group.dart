@@ -1,6 +1,9 @@
 import 'package:arabicchurch/model/content.dart';
+import 'package:arabicchurch/model/db_entity.dart';
+import 'package:arabicchurch/services/data_service.dart';
 
-class Group {
+class Group implements DBEntity {
+  String tableName = DataService.groupsTable;
   String name;
   String title;
   List<Content> content;
@@ -12,6 +15,17 @@ class Group {
     title = data['title'];
     managers = data['managers']?.split(',');
     content = Content.createContent(data['content']);
+  }
+
+  String get key => name;
+
+  Map<String, dynamic> get toDataSnapshot {
+    return {
+      'title': title,
+      'managers': managers.join(','),
+      'content': content.map((Content content) => content.toDataSnapshot)
+          .toList()
+    };
   }
 
   @override

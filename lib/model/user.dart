@@ -1,3 +1,4 @@
+import 'package:arabicchurch/services/data_service.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class User {
@@ -9,6 +10,10 @@ class User {
   User.fromGoogleSignIn(GoogleSignInAccount googleUser)
       : email = googleUser.email,
         displayName = googleUser.displayName;
+
+  String get tableName => DataService.usersTable;
+
+  String get key => username;
 
   String get username => email.replaceAll('@', '').replaceAll('.', '');
 }

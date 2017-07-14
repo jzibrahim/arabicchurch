@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:core';
+
 import 'package:arabicchurch/model/church_data.dart';
+import 'package:arabicchurch/model/db_entity.dart';
 import 'package:arabicchurch/model/group.dart';
 import 'package:arabicchurch/model/user.dart';
 import 'package:arabicchurch/model/user_preferences.dart';
@@ -10,6 +12,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 class DataService {
+  static const groupsTable = 'groups';
+  static const usersTable = 'users';
+
   static DataService _cached;
 
   final Completer<UserPreferences> loadComplete = new Completer();
@@ -17,9 +22,9 @@ class DataService {
   final _groups = <Group>[];
   final _signInService = new SignInService();
   final _analytics = new FirebaseAnalytics();
-  final dbRef = FirebaseDatabase.instance.reference();
+  final _dbRef = FirebaseDatabase.instance.reference();
 
-  UserPreferences userPreferences;
+  UserPreferences userPreferences = new UserPreferences.fromUser(new User());
 
   factory DataService() {
     _cached ??= new DataService._internal();
@@ -33,7 +38,7 @@ class DataService {
     await _initDatabase();
   }
 
-  ChurchData getChurchData() => new ChurchData(_groups);
+  ChurchData get churchData => new ChurchData(_groups);
 
   _initDatabase() async {
     await FirebaseAuth.instance.signInAnonymously();
@@ -41,7 +46,7 @@ class DataService {
   }
 
   _loadGroups() async {
-    _getGroupDBRef().onValue.forEach((Event event) async {
+    getDBReference(groupsTable).onValue.forEach((Event event) async {
       Map<String, dynamic> data = event.snapshot.value;
       for (String key in data.keys) {
         _groups.add(new Group.fromDataSnapshot(key, data[key]));
@@ -52,28 +57,37 @@ class DataService {
   }
 
   _loadUser() async {
-    var event = await _getUserDBRef(_signInService.user).once();
-    if (event.value != null) {
+    DBEntity userDBEntry = await loadDatabaseEntity(
+        usersTable, _signInService.user.username);
+    if (userDBEntry is UserPreferences) {
       // User is in our database already.
-      userPreferences = new UserPreferences.fromDataSnapshot(
-          _signInService.user.displayName, event, _groups,
-          _leadGroups(_groups, _signInService.user));
-      loadComplete.complete(userPreferences);
+      userPreferences = (userDBEntry as UserPreferences)
+        ..displayName = _signInService.user.displayName;
+
+      if (!loadComplete.isCompleted) {
+        loadComplete.complete(userPreferences);
+      }
     } else {
       // User is not in the database, so put them in the database.
       userPreferences = new UserPreferences.fromUser(_signInService.user);
-      _getUserDBRef(_signInService.user)
-          .set(userPreferences.toDataSnapshot)
-          .then((_) {
-        loadComplete.complete(userPreferences);
-        _analytics.logEvent(
-            name: 'new_user',
-            parameters: {'username': _signInService.user.username});
-      }).catchError(() {
-        _analytics.logEvent(
-            name: 'new_user_failed',
-            parameters: {'username': _signInService.user.username});
-        loadComplete.completeError(new Error());
+      saveDatabaseEntity(userPreferences).then((succesful) {
+        // User was added successfully to the database.
+        if (succesful == true) {
+          loadComplete.complete(userPreferences);
+          _analytics.logEvent(
+              name: 'new_user',
+              parameters: {
+                'username': _signInService.user.username
+              });
+        } else {
+          // User was not added successfully to the database.
+          _analytics.logEvent(
+              name: 'new_user_failed',
+              parameters: {
+                'username': _signInService.user.username
+              });
+          loadComplete.completeError(new Error());
+        }
       });
     }
 
@@ -81,49 +95,32 @@ class DataService {
     return loadComplete;
   }
 
-  DatabaseReference _getGroupDBRef() => dbRef.child('groups');
+  DatabaseReference getDBReference(String tableName, {String key}) {
+    if (key == null) {
+      return _dbRef.child(tableName);
+    }
 
-  DatabaseReference _getUserDBRef(User user) =>
-      dbRef.child('users/${user.username}');
+    return _dbRef.child('$tableName/$key');
+  }
 
-  List<Group> _leadGroups(List<Group> groups, User user) =>
-      groups.where((Group group) => group.managers.contains(user.username))
-          .toList();
+  Future<DBEntity> loadDatabaseEntity(String tableName, String key) async {
+    var event = await _dbRef.child('$tableName/$key').once();
+    if (event.value != null) {
+      // Entity is in our database already.
+      return new DBEntity.fromSnapshot(tableName, key, event.value);
+    }
 
-/*
+    return null;
+  }
 
-
-//var snapshot = (await groupsReference.onValue.first).snapshot;
-    //ref.set({'test': 'testvalue'});
-    //TODO
-    //print('dataservice: ${snapshot.key}');
-    /*DataSnapshot snapshot = await _signInReference.root().reference().child(
-        '/groups/').once();
-*/ /*
-    //TODO
-    print('dataservice: got groups');
-    Map<String, DataSnapshot> data = snapshot.value;
-    //TODO
-    print('groupskey: ${snapshot.key}');
-    print('groupsvalue: ${snapshot.value}');
-    for (var key in data.keys) {
-      groups.add(new Group.fromDataSnapshot(data[key]));
-    }*/
-
-    FirebaseAuth.instance.signInAnonymously().then((user) {
-      _signInReference.onChildAdded.listen((Event event) {
-        switch (event.snapshot.key) {
-          case 'users':
-            print('users:::: ${event.snapshot.value}');
-            break;
-          case 'groups':
-            print('groups:::: ${event.snapshot.value}');
-            break;
-
-        }
-//TODO
-        print('key: ${event.snapshot.key}');
-        print('value: ${event.snapshot.value}');
-     */
+  Future<bool> saveDatabaseEntity(DBEntity entity) {
+    return _dbRef.child('${entity.tableName}/${entity.key}')
+        .set(entity.toDataSnapshot)
+        .then((_) {
+      return new Future.value(true);
+    }).catchError((error) {
+      print('error $error');
+      return new Future.value(false);
+    });
+  }
 }
-

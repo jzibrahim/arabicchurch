@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:arabicchurch/model/user.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -26,8 +27,6 @@ class SignInService {
         user = new User.fromGoogleSignIn(_googleSignIn.currentUser);
       }
     } catch (error) {
-      //TODO
-      print('Caught this error: $error');
       user = new User();
     }
     _analytics.logLogin();

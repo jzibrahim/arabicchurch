@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:arabicchurch/model/group.dart';
 import 'package:arabicchurch/model/content.dart';
+import 'package:arabicchurch/model/group.dart';
 import 'package:arabicchurch/services/data_service.dart';
+import 'package:flutter/material.dart';
 
 class Notifications extends Widget {
   DataService _dataService = new DataService();
@@ -10,10 +10,8 @@ class Notifications extends Widget {
   StatelessElement createElement() {
     var user = _dataService.userPreferences;
     Iterable<Group> groups = user.defaultGroups;
-    if (user.defaultGroups.isEmpty) {
-      groups = _dataService
-          .getChurchData()
-          .groups;
+    if (groups.isEmpty) {
+      groups = _dataService.churchData.groups;
     }
 
     var list = <Widget>[new ListTile(

@@ -1,4 +1,4 @@
-import 'package:firebase_database/firebase_database.dart';
+
 
 class Content {
   static List<Content> createContent(List<dynamic> data) {
@@ -22,6 +22,14 @@ class Content {
         : ContentType.IMAGE;
     text = data['text'];
   }
+
+  Map<String, dynamic> get toDataSnapshot {
+    return {
+      'contentType': type.toString(),
+      'text': text
+    };
+  }
+
 }
 
 enum ContentType { TEXT, IMAGE }

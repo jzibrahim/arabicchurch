@@ -1,13 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:arabicchurch/model/group.dart';
 import 'package:arabicchurch/group_details.dart';
-import 'package:arabicchurch/model/content.dart';
+import 'package:arabicchurch/model/group.dart';
 import 'package:arabicchurch/services/data_service.dart';
+import 'package:flutter/material.dart';
 
 class LeaderScreen extends Widget {
+  final _dataService = new DataService();
+
   @override
   StatelessElement createElement() {
-    var user = new DataService().userPreferences;
+    var user = _dataService.userPreferences;
 
     var list = <Widget>[new ListTile(
         title: new Text(user.displayName,
@@ -28,7 +29,12 @@ class LeaderScreen extends Widget {
             onTap: () {
               Navigator.of(context).push(
                   new GroupDetailsRoute(group)
-              );
+              ).then((_) {
+                _dataService.saveDatabaseEntity(
+                    user.leadGroups.firstWhere((Group grp) =>
+                    grp.name ==
+                        group.name));
+              });
             }
         );
       }));
@@ -37,22 +43,4 @@ class LeaderScreen extends Widget {
     return new StatelessElement(
         new ListView(children: list));
   }
-/*
-  goToGroupDetails(BuildContext context, Group group) async {
-    var textOverlay = await Navigator.push(
-        context, new GroupDetailsRoute(group));
-    if (textOverlay == null) return;
-    / * var message = {
-      'sender': {'name': account.displayName, 'imageUrl': account.photoUrl},
-      'imageUrl': downloadUrl.toString(),
-      'textOverlay': textOverlay,
-    };
-    _messagesReference.push().set(message);
-    Navigator.of(context).push(new MaterialPageRoute<bool>(
-        builder: (BuildContext context) {
-          return new GroupDetails(group);
-        }
-    ));
-  * /
-  }*/
 }
