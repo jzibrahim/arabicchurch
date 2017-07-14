@@ -1,11 +1,10 @@
 import 'package:arabicchurch/admin_screen.dart';
-import 'package:arabicchurch/ccb.dart';
 import 'package:arabicchurch/leader_screen.dart';
 import 'package:arabicchurch/model/user_preferences.dart';
 import 'package:arabicchurch/notifications.dart';
 import 'package:arabicchurch/services/data_service.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:flutter/material.dart';
 
 void main() {
   runApp(new MyApp());
@@ -38,8 +37,7 @@ class HomeScreenState extends State<HomeScreen>
 
   final Map<Tab, Widget> myTabs = {
     new Tab(text: 'Welcome'): new Center(child: new Text(
-        'Welcome to our church!!\n We are in Boston, MA.  Come visit us.\n'
-            '(4 or 5 images) [Welcome with picture of welcome [Church, ]]',
+        'Welcome to our church!!\n We are in Boston, MA.  Come visit us.',
         style: new TextStyle(fontSize: 24.0), textAlign: TextAlign.center)),
     new Tab(text: 'Calendar'): new Center(child: new Notifications())
     //TODO new Tab(text: 'CCB'): new Center(child: new Text(_ccbText))
