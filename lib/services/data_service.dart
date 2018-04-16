@@ -1,3 +1,5 @@
+library services.data_service;
+
 import 'dart:async';
 import 'dart:core';
 
@@ -6,10 +8,12 @@ import 'package:arabicchurch/model/db_entity.dart';
 import 'package:arabicchurch/model/group.dart';
 import 'package:arabicchurch/model/user.dart';
 import 'package:arabicchurch/model/user_preferences.dart';
-import 'package:arabicchurch/services/signin_service.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
+part 'signin_service.dart';
 
 class DataService {
   static const groupsTable = 'groups';
@@ -34,31 +38,44 @@ class DataService {
   DataService._internal();
 
   initialize() async {
-    await _signInService.ensureLoggedIn();
+    await _signInService._ensureLoggedIn();
     await _initDatabase();
   }
 
   ChurchData get churchData => new ChurchData(_groups);
 
+  User get user => _signInService.user;
+
+  bool get loggedIn => _signInService.loggedIn;
+
+  Future<User> signIn() async {
+    await _signInService._ensureLoggedIn();
+    await _loadUser();
+    return _signInService.user;
+  }
+
+  signOut() async {
+    await _signInService._signOut();
+    await _loadUser();
+  }
+
   _initDatabase() async {
-    await FirebaseAuth.instance.signInAnonymously();
+    _signInService._ensureLoggedIn();
     await _loadGroups();
+    await _loadUser();
   }
 
   _loadGroups() async {
-    getDBReference(groupsTable).onValue.forEach((Event event) async {
-      Map<String, dynamic> data = event.snapshot.value;
-      for (String key in data.keys) {
-        _groups.add(new Group.fromDataSnapshot(key, data[key]));
-      }
-
-      await _loadUser();
+    await getDBReference(groupsTable).onValue.forEach((Event event) async {
+      Map<dynamic, dynamic> data = event.snapshot.value;
+      data.keys.forEach((key) =>
+          _groups.add(new Group.fromDataSnapshot(key.toString(), data[key])));
     });
   }
 
   _loadUser() async {
-    DBEntity userDBEntry = await loadDatabaseEntity(
-        usersTable, _signInService.user.username);
+    DBEntity userDBEntry =
+        await loadDatabaseEntity(usersTable, _signInService.user.username);
     if (userDBEntry is UserPreferences) {
       // User is in our database already.
       userPreferences = (userDBEntry as UserPreferences)
@@ -76,16 +93,12 @@ class DataService {
           loadComplete.complete(userPreferences);
           _analytics.logEvent(
               name: 'new_user',
-              parameters: {
-                'username': _signInService.user.username
-              });
+              parameters: {'username': _signInService.user.username});
         } else {
           // User was not added successfully to the database.
           _analytics.logEvent(
               name: 'new_user_failed',
-              parameters: {
-                'username': _signInService.user.username
-              });
+              parameters: {'username': _signInService.user.username});
           loadComplete.completeError(new Error());
         }
       });
@@ -114,7 +127,8 @@ class DataService {
   }
 
   Future<bool> saveDatabaseEntity(DBEntity entity) {
-    return _dbRef.child('${entity.tableName}/${entity.key}')
+    return _dbRef
+        .child('${entity.tableName}/${entity.key}')
         .set(entity.toDataSnapshot)
         .then((_) {
       return new Future.value(true);

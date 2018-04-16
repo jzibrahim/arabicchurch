@@ -6,6 +6,13 @@ import 'package:arabicchurch/notifications.dart';
 
 import 'package:arabicchurch/services/data_service.dart';
 
+class AdminScreenRoute extends MaterialPageRoute<String> {
+  AdminScreenRoute()
+      : super(builder: (BuildContext context) {
+          return new AdminScreen();
+        });
+}
+
 class AdminScreen extends Widget {
   @override
   Widget build(BuildContext context) {
@@ -16,12 +23,12 @@ class AdminScreen extends Widget {
   StatelessElement createElement() {
     var user = new DataService().userPreferences;
 
-    var list = <Widget>[new ListTile(
-        title: new Text(user.displayName,
-            style: new TextStyle(
-                fontWeight: FontWeight.w500, fontSize: 20.0)),
-        subtitle: new Text(
-            'Thanks for being an admin!'))
+    var list = <Widget>[
+      new ListTile(
+          title: new Text(user.displayName,
+              style:
+                  new TextStyle(fontWeight: FontWeight.w500, fontSize: 20.0)),
+          subtitle: new Text('Thanks for being an admin!'))
     ];
 
     for (Group group in user.leadGroups) {
@@ -36,17 +43,14 @@ class AdminScreen extends Widget {
               subtitle: new Text(
                   '${group.name} leaders: ${group.managers.join(', ')}'),
               onTap: () {
-                Navigator.of(context).push(
-                    new GroupDetailsRoute(group)
-                );
+                Navigator.of(context).push(new GroupDetailsRoute(group));
               });
         },
       ));
     }
 
-    return new StatelessElement(
-        new ListView(children: list)
-      //TODO: ADD FAB to create new groups.
-    );
+    return new StatelessElement(new ListView(children: list)
+        //TODO: ADD FAB to create new groups.
+        );
   }
 }

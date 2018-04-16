@@ -1,8 +1,4 @@
-import 'dart:async';
-
-import 'package:arabicchurch/model/user.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+part of services.data_service;
 
 class SignInService {
   static SignInService _cached;
@@ -19,22 +15,31 @@ class SignInService {
 
   SignInService._internal();
 
-  ensureLoggedIn() async {
+  Future<User> _ensureLoggedIn() async {
     try {
-      GoogleSignInAccount signInAccount = await _googleSignIn.signIn();
+      final GoogleSignInAccount signInAccount = await _googleSignIn.signIn();
+      final GoogleSignInAuthentication googleAuth =
+          await signInAccount.authentication;
+      final FirebaseUser firebaseUser =
+          await FirebaseAuth.instance.signInWithGoogle(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
 
       if (signInAccount != null) {
-        user = new User.fromGoogleSignIn(_googleSignIn.currentUser);
+        this.user = new User.fromGoogleSignIn(firebaseUser);
       }
     } catch (error) {
       user = new User();
     }
     _analytics.logLogin();
+    return user;
   }
 
   bool get loggedIn => _googleSignIn.currentUser != null;
 
-  Future<Null> signOut() async {
-    _googleSignIn.signOut();
+  Future<Null> _signOut() async {
+    await _googleSignIn.signOut();
+    user = new User();
   }
 }

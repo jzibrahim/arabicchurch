@@ -1,5 +1,3 @@
-
-
 class Content {
   static List<Content> createContent(List<dynamic> data) {
     var list = <Content>[];
@@ -16,14 +14,14 @@ class Content {
 
   Content(this.type, this.text);
 
-  Content.fromDataSnapshot(Map<String, dynamic> data) {
+  Content.fromDataSnapshot(Map<dynamic, dynamic> data) {
     type = data['contentType'] == ContentType.TEXT.toString()
         ? ContentType.TEXT
         : ContentType.IMAGE;
     text = data['text'];
   }
 
-  Map<String, dynamic> get toDataSnapshot {
+  Map<dynamic, dynamic> get toDataSnapshot {
     return {
       'contentType': type.toString(),
       'text': text
