@@ -7,10 +7,10 @@ class DBEntity {
 
   DBEntity();
 
-  DBEntity.fromDataSnapshot(String key, Map<String, dynamic> data);
+  DBEntity.fromDataSnapshot(String key, Map<dynamic, dynamic> data);
 
   factory DBEntity.fromSnapshot(String table, String key,
-      Map<String, dynamic> data) {
+      Map<dynamic, dynamic> data) {
     switch (table) {
       case DataService.usersTable:
         return new UserPreferences.fromDataSnapshot(key, data);
@@ -23,5 +23,5 @@ class DBEntity {
 
   String get key => '';
 
-  Map<String, dynamic> get toDataSnapshot => null;
+  Map<dynamic, dynamic> get toDataSnapshot => null;
 }

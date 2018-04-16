@@ -11,7 +11,7 @@ class Group implements DBEntity {
 
   Group(this.name, this.title, this.content, this.managers);
 
-  Group.fromDataSnapshot(this.name, Map<String, dynamic> data) {
+  Group.fromDataSnapshot(this.name, Map<dynamic, dynamic> data) {
     title = data['title'];
     managers = data['managers']?.split(',');
     content = Content.createContent(data['content']);
@@ -19,7 +19,7 @@ class Group implements DBEntity {
 
   String get key => name;
 
-  Map<String, dynamic> get toDataSnapshot {
+  Map<dynamic, dynamic> get toDataSnapshot {
     return {
       'title': title,
       'managers': managers.join(','),
