@@ -6,6 +6,7 @@ import 'package:arabicchurch/admin_screen.dart';
 import 'package:arabicchurch/leader_screen.dart';
 import 'package:arabicchurch/model/user.dart';
 import 'package:arabicchurch/model/user_preferences.dart';
+import 'package:arabicchurch/settings_screen.dart';
 import 'package:arabicchurch/notifications.dart';
 import 'package:arabicchurch/services/data_service.dart';
 import 'package:arabicchurch/welcome_screen.dart';
@@ -209,7 +210,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           widget: new LeaderScreen(), forManager: true),
       new DrawerItem("Admin", Icons.supervisor_account,
           widget: new AdminScreen(), forAdmin: true),
-      new DrawerItem("Settings", Icons.settings, widget: new Text("Settings")),
+      new DrawerItem("Settings", Icons.settings, widget: new SettingsScreen()),
 
       //TODO new DrawerItem("Add a person", Icons.person_add),
       //TODO new DrawerItem("Manage", Icons.supervisor_account),
