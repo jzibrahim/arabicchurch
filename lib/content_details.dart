@@ -11,8 +11,6 @@ class ContentDetails extends Widget {
 
   @override
   StatelessElement createElement() {
-    var user = new DataService().userPreferences;
-
     var list = <Widget>[new ListTile(
         title: new Text(content.text,
             style: new TextStyle(

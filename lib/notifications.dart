@@ -16,7 +16,7 @@ class Notifications extends Widget {
   @override
   StatelessElement createElement() {
     var user = _dataService.userPreferences;
-    Iterable<Group> groups = user.defaultGroups;
+    Iterable<dynamic> groups = user.defaultGroups;
     if (groups.isEmpty) {
       groups = _dataService.churchData.groups;
     }

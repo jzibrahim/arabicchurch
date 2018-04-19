@@ -14,7 +14,7 @@ class UserPreferences extends DBEntity {
   String displayName;
   String email;
   bool isAdmin = false;
-  List<Group> defaultGroups = [];
+  List<dynamic> defaultGroups = [];
   List<Group> leadGroups = [];
 
   UserPreferences.fromUser(User user)
@@ -29,8 +29,7 @@ class UserPreferences extends DBEntity {
     email = snapshot[emailFieldName];
 
     if (snapshot[defaultGroupsFieldName] != null) {
-      List<String> defaultGroupNames =
-          snapshot[defaultGroupsFieldName]?.split(',');
+      var defaultGroupNames = snapshot[defaultGroupsFieldName];
       List<Group> groups = new DataService().churchData.groups;
       defaultGroups = defaultGroupNames
           .map((name) => groups.firstWhere((group) => group.name == name))
@@ -45,7 +44,7 @@ class UserPreferences extends DBEntity {
 
   Map<dynamic, dynamic> get toDataSnapshot {
     List<dynamic> defaultGroupNames =
-        defaultGroups.map((Group group) => group.name).toList();
+        defaultGroups.map((group) => group.name).toList();
     return {
       adminFieldName: isAdmin,
       defaultGroupsFieldName: defaultGroupNames,
